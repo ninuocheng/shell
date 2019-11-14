@@ -1,0 +1,115 @@
+源码编译安装nginx
+yum -y install gcc pcre-devel(支持正则) openssl-devel(支持加密)
+tar -xf nginx-1.12.2.tar.gz
+cd nginx-1.12.2.tar.gz
+useradd -s /sbin/nologin
+./configure(配置)  --prefix=/usr/local/nginx(默认安装路径)  \   指定安装路径
+--user=nginx  \   指定用户  
+--group=nginx   \  指定组
+--with-http_ssl_module   开启SSL加密功能 
+make  && make install   编译并安装
+/usr/local/nginx   安装目录   
+conf/nginx.conf     主配置文件
+html               网页目录
+logs               日志文件
+sbin/nginx          启动脚本(主程序)
+/usr/local/nginx/sbin/nginx  -V(查看编译参数)
+ps aux | grep nginx 查看服务相关进程及端口信息
+netstat  -tunlp | grep nginx
+配置文件结构
+全局配置
+http {
+      ........
+       server {
+             .......
+             location / {
+                   .....
+            }
+       }
+ }
+配置容器
+http {
+....
+  server {                         定义虚拟主机
+      listen   80;
+      server_name localhost;
+      location  / {                 发布目录
+      root  html;
+      index index.html index.htm;
+用户认证
+location / {
+       root html;
+       index index.html;
+       auth_basic  "auth-domain";(起提示作用,随便写)
+       auth_basic_user_file /usr/local/nginx/pass;
+yum -y install httpd-tools
+htpasswd -c /usr/local/nginx/pass  admin   创建认证用户
+基于域名的虚拟主机
+.....
+server {
+       listen 80;
+       server_name web1.gzc.com;
+        ....
+}
+server {
+          listen 80;
+           server_name web2.gzc.com;
+....
+}  
+....
+基于端口的虚拟主机
+server {
+          listen 8080;
+          server_name web1.gzc.com;
+    ....
+}
+server {
+          listen 8000;
+          server_name web1.gzc.com;
+....
+}
+基于ip的虚拟主机
+server {
+       listen 192.168.4.1:80;
+       server_name  web1.gzc.com;
+....
+}
+server {
+           listen  192.168.4.2:80;
+           server_name web1.gzc.com;
+.....
+}
+秘钥
+对称秘钥
+AES
+DES
+应用案例:RAR,ZIP压缩加密(单机加密)
+非对称秘钥
+RSA
+DSA
+应用案例:网络加密(https,ssh)
+Hash值
+MD5
+SHA256
+SHA512
+应用案例:数据完整性校验
+SSL虚拟主机
+生成秘钥
+SSL加密网站的核心技术是非对称生成秘钥
+公钥,私钥,证书
+cd /usr/local/nginx/conf
+openssl genrsa > cert.key   生成私钥
+openssl req -new -x509 -key cert.key > cert.pem 生成证书
+SSL加密网站
+server {
+         listen 443 ssl;
+         server_name www.test.com;
+         ssl_certificate cert.pem;       指定证书文件
+         ssl_certificate_key cert.key;   指定私钥文件
+            .....
+         location / {
+         root html;
+         index index.html index.htm;
+   }
+ }
+

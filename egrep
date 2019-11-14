@@ -1,0 +1,198 @@
+什么是正则表达式
+Regular Express
+使用"一串符号"来描述有共同属性的数据
+egrep过滤工具
+文本处理顺序
+以行为单位,逐行进行处理
+默认只输出与表达式相匹配的文本行
+基本用法
+格式1:egrep  选项   '正则表达式'  文件
+格式2:前置命令  |  egrep  选项  '正则表达式'
+等同于  grep  -E  选项   '正则表达式'  表示允许使用扩展的正则表达式
+常用命令选项
+-i  忽略字母的大小写
+-v  对条件取反
+-c  统计匹配的行的数量
+-q  静默、无任何输出,一般是用于检测  echo $?  返回值如果为0,说明有匹配,否则无匹配
+-n 显示出匹配结果所在的行号
+--color  标红显示匹配子串
+基本元字符
+^  匹配行首  ^abc    以abc开头的行
+$  匹配行尾   abc$   以ab结尾的行
+^$ 匹配空行    ^$       空行
+.   单个字符   .       除换行符(\n)以外的任意单个字符
+[root@server0 opt]# egrep '^root'  /etc/passwd   找出以root开头的行
+root:x:0:0:root:/root:/bin/bash
+[root@server0 opt]# egrep -c '/bin/bash$'  /etc/passwd  统计以/bin/bash结尾的行的数量
+53
+未定匹配次数
++     至少匹配一次   a++    一个或一个以上连续的a
+                 (abc)+  一个或一个以上连续的abc
+?      最多匹配一次   a?     0个或1个a 
+                  (abc)? 0个或1个abc
+*      匹配任意次数    (abc)*  0个或以上连续的abc
+                         .*      任意长度的任意字符串
+[root@server0 opt]# sed  -n 'p'  reg.txt 
+abcd  XX
+XX
+abcabcd  XX
+[root@server0 opt]# egrep '(abc)+'  reg.txt 
+abcd  XX
+abcabcd  XX
+[root@server0 opt]# egrep '(abc)*'  reg.txt
+abcd  XX
+XX
+abcabcd  XX
+{}限定次数
+限定表达式的匹配次数
+{n}       匹配n次        (ab){3}        匹配ababab
+{n,m}     匹配n-m次      (ab){1,3}      匹配ab、abab、ababab
+{n,}      匹配至少n次     (ab){2,}      匹配2个或2个以上连续的ab
+[root@server0 opt]# egrep '(abc){2}'  reg.txt
+abcabcd  XX
+[root@server0 opt]# egrep '(abc){1,}'  reg.txt
+abcd  XX
+abcabcd  XX
+[root@server0 opt]# egrep '(abc){1,3}'  reg.txt
+abcd  XX
+abcabcd  XX
+其它元字符
+[ ]范围内单子匹配
+匹配指定字符集合内的任何一个字符
+[ ]内加^可取反
+[alc45_?]               匹配a、l、c、4、5_、?
+[a-z]                   匹配任意小写字母
+[A-Z]                   匹配任意大写字母
+[0-9]                           匹配任意数字
+[a-Z0-9]                匹配任意字母或数字
+[^A-Z]                  匹配不是大写字母的行
+^[^a-z]                 匹配不是以小写字母开头的行
+[root@server0 opt]# grep '[^A-Z]'  reg.txt
+abcd  XX
+abcabcd  XX
+[root@server0 opt]# egrep '^[^A-Z]'  reg.txt
+abcd  XX
+abcabcd  XX
+[root@server0 opt]# egrep ^[^a-z]  reg.txt
+XX
+[root@server0 opt]# egrep [^a-z]  reg.txt
+abcd  XX
+XX
+abcabcd  XX
+[root@server0 opt]# egrep 'bc[dfx]'  reg.txt
+abcd  XX
+abcabcd  XX
+()    组合为整体        ab{1,3}          匹配ab、abb、abbb
+                   (ab){1,3}        匹配ab、abab、ababab
+|      或者              root|bin         匹配root、bin
+\b   单词边界          \broot\b         匹配单词root,不匹配keroot、rooty、brooty等字符串
+\<   单词的开头         \<th            匹配以th开头的单词
+\>   单词的结束         \<root\>          作用与\broot\b相同
+\w   字母数字下划线     \wa             匹配xa ,不匹配#a
+\s   匹配空白            \sa             匹配 a ,不匹配xa
+\d   匹配数字             -P \da          匹配5a , 不匹配xa
+\为转义符号,可以为一些普通字符赋予特殊含义,或者将一些特殊字符变为普通字符
+[root@server0 opt]# egrep '^(root|bin)' /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+[root@server0 opt]# egrep '^root|^bin'  /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+[root@server0 opt]# egrep '\<abcd\>'  reg.txt
+abcd  XX
+[root@server0 opt]# egrep 'abcd\>'  reg.txt
+abcd  XX
+abcabcd  XX
+[root@server0 opt]# egrep  '\wabc\w'  reg.txt
+abcabcd  XX
+12abc3456
+_abc_
+[root@server0 opt]# egrep  'abc\w'  reg.txt
+abcd  XX
+abcabcd  XX
+12abc3456
+abcdlk
+_?abc_?_
+abc_
+_abc_
+ abc_
+ abce 
+[root@server0 opt]# egrep  'abc\s'  reg.txt
+ abc 
+abc 
+abc !
+abc #$%%^^$%^^&$&
+[root@server0 opt]# egrep  '\sabc\s'  reg.txt
+ abc 
+[root@server0 opt]# egrep  '\sabc'  reg.txt
+ abc_
+ abc 
+ abce 
+[root@server0 opt]# egrep  '\babc\abc'  reg.txt
+abcabcd  XX
+[root@server0 opt]# egrep  '\babc'  reg.txt
+[root@server0 opt]# egrep  '\babc'  reg.txt
+abcd  XX
+abcabcd  XX
+abcdlk
+_?abc_?_
+?abc\,.
+!abc@
+#abc$
+%abc^
+&abc*
+(abc)
+-abc=
+abc+
+abc_
+ abc_
+ abc 
+ abce 
+abc 
+abc !
+abc #$%%^^$%^^&$&
+135fdsaoqk  abc
+[root@server0 opt]# egrep  '\babc\b'  reg.txt
+?abc\,.
+!abc@
+#abc$
+%abc^
+&abc*
+(abc)
+-abc=
+abc+
+ abc 
+abc 
+abc !
+abc #$%%^^$%^^&$&
+135fdsaoqk  abc
+[root@server0 opt]# egrep  '\<abc\b'  reg.txt
+?abc\,.
+!abc@
+#abc$
+%abc^
+&abc*
+(abc)
+-abc=
+abc+
+ abc 
+abc 
+abc !
+abc #$%%^^$%^^&$&
+135fdsaoqk  abc
+[root@server0 opt]# egrep  '\<abc\>'  reg.txt
+?abc\,.
+!abc@
+#abc$
+%abc^
+&abc*
+(abc)
+-abc=
+abc+
+ abc 
+abc 
+abc !
+abc #$%%^^$%^^&$&
+
+
+

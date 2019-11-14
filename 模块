@@ -1,0 +1,2 @@
+配置nginx时加上--without-http_rewrite_module这个参数,就不需要安装pcre-devel
+不加--without-http_rewrite_module这个参数时就是启动URL重写,所以需要pcre-devel

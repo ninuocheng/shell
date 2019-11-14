@@ -1,0 +1,10 @@
+可以直接通过gsettings list-recursively | grep desktop.backgroud | grep picture-uri
+          gsettings set 
+或者配置文件/etc/dconf/db/local.d/
+
+$gsettings list-recursively |grep desktop.background |grep picture-uri
+org.cinnamon.desktop.background picture-uri 'file///user/share/backgrounds/linuxmint/default_backaground.jpg'
+2）修改gsettings值，设置你需要的图片，假如你的图片放在/home/xxx/test.jpg下
+$gsettings set org.cinnamon.desktop.background picture-uri 'file///home/xxx/test.jpg'
+即可生效。
+系统的很多配置都可以通过gsettings去配置。

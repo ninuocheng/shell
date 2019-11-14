@@ -1,0 +1,36 @@
+ sed 's/.//2';'s/.$//' nnws.txt 
+  807  sed 's/.//2;'s/.$//' nnws.txt 
+  808  sed 's/.//2;s/.$//' nnws.txt 
+  809  sed 's/.//3';'s/.//' nnws.txt 
+  810  sed 's/.//3;s/.//' nnws.txt 
+  811  sed -n -p nnws.txt 
+  812  sed -n p nnws.txt 
+  813  sed 's/^(.)(.*)(.$)/\1\2\3/'
+  814  sed 's/^(.)(.*)(.$)/\1\2\3/'  nnws.txt 
+  815  sed -r 's/^(.)(.*)(.$)/\1\2\3/'  nnws.txt 
+  816  sed -r 's/^(.)(.*)(.$)/\2\1\3/'  nnws.txt 
+  817  sed -r 's/(^.)(.*)(.$)/\1\2\3/' nnws.txt 
+  818  sed -r 's/(^.)(.*)(.$)/\3\1\2/' nnws.txt 
+  819  sed -r 's/(^.)(.*)(.$)/\3\3\3/' nnws.txt 
+  820  sed -r 's/(^.)(.*)(.$)/\1\1\1/' nnws.txt 
+  821  sed -r 's/(^.)(.*)(.$)/\/' nnws.txt 
+  822  sed -r 's/(^.)(.*)(.$)/\1/' nnws.txt 
+  823  sed -r 's/(^.)(.*)(.$)/\2/' nnws.txt 
+  824  sed -r 's/(^.)(.*)(.$)/\3/' nnws.txt 
+  825  sed -r 's/(^.)(.*)(.$)/\2/' nnws.txt 
+  826  sed -r 's/(^.)(.*)(.$)/\2\1/' nnws.txt 
+  827  sed -r 's/(^.)(.*)(.$)/\2\3/' nnws.txt 
+  828  sed -r 's/(^.)(.*)(.$)/\1\3/' nnws.txt 
+  829  sed -r 's/(^.)(.*)(.$)/\2\3/' nnws.txt 
+  830  sed -r 's/(^.)(.*)(.$)/\1\3/' nnws.txt 
+  831  sed -r 's/(^.)(.*)(.$)/\1\2/' nnws.txt 
+  832  vim nnws.txt
+  833  sed -n 'p' nnws.txt 
+  834  sed  '/[0-9]/p/' nnws.txt
+  835  sed  '/[0-9]/p' nnws.txt
+  836  sed -n '/[0-9]/p' nnws.txt
+  837  sed 's/[0-9]//g' nnws.txt
+  838  sed -r 's/([A-Z])/{\1}/g' nnws.txt 
+  839  sed -r 's/([0-9])/{\1}/g' nnws.txt 
+  840  sed -r 's/([a-z])/{\1}/g' nnws.txt 
+  841  sed -r 's/([a-z|A-Z])/{\1}/g' nnws.txt 

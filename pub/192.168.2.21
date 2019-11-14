@@ -1,0 +1,25 @@
+#!/bin/bash
+b=$(ifconfig eth0 | awk '/inet/{print $2}')
+yum -y install mariadb mariadb-server mariadb-devel
+systemctl start mariadb
+systemctl enable mariadb
+mysqldump wordpress >  wordpress.bak
+read -p  "之前单机版LNMP的一台网站服务器ip地址:"  a
+scp   $a:/root/wordpress.bak   /root
+ssh $a "systemctl stop mariadb
+systemctl disable mariadb"
+rpm -q expect
+if [ $? -eq 0 ];then
+echo  "expect已经安装"
+else
+echo  "expect未安装"
+yum -y install expect
+fi
+mysql  <<EOF
+create database wordpress character set utf8mb4;
+grant all on wordpress.* to wordpress@'%' identified by 'wordpress';
+flush privileges;
+EOF
+mysql wordpress < wordpress.bak
+#ssh $b "sed  -i  '32s/$a/$b/' /usr/local/nginx/html/wp-config.php"
+systemctl restart php-fpm  mariadb

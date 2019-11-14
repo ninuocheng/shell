@@ -1,0 +1,17 @@
+/home/student/.bashrc
+/etc/motd  屏幕显示内容
+xeyes
+/etc/profile 历史配置文件
+!n
+!cat
+du -sh /root
+date +%F
+date +%R
+软链接
+ln -s  
+zip  -r   /mnt/abc.zip   /root   /etc/passwd
+unzip  /mnt/abc.zip   -d    /opt
+yum -y install createrepo
+createrepo  /tools/other
+ls /tools/other
+mount -t ntfs-3g /dev/sda1/mnt/windows

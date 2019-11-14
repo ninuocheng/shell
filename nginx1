@@ -1,0 +1,55 @@
+main：用于进行nginx全局信息的配置
+events：用于nginx工作模式的配置
+http：用于进行http协议信息的一些配置
+server：用于进行服务器访问信息的配置
+location：用于进行访问路由的配置
+upstream：用于进行负载均衡的配置
+
+server模块配置是http模块中的一个子模块，用来定义一个虚拟访问主机，也就是一个虚拟服务器的配置信息
+server {
+    listen        80;
+    server_name localhost    192.168.1.100;
+    root        /nginx/www;
+    index        index.php index.html index.html;
+    charset        utf-8;
+    access_log    logs/access.log;
+    error_log    logs/error.log;
+    ......
+}
+server：一个虚拟主机的配置，一个http中可以配置多个server
+
+server_name：用力啊指定ip地址或者域名，多个配置之间用空格分隔
+
+root：表示整个server虚拟主机内的根目录，所有当前主机中web项目的根目录
+
+index：用户访问web网站时的全局首页
+
+charset：用于设置www/路径中配置的网页的默认编码格式
+
+access_log：用于指定该虚拟主机服务器中的访问记录日志存放路径
+
+error_log：用于指定该虚拟主机服务器中访问错误日志的存放路径
+
+location模块是nginx配置中出现最多的一个配置，主要用于配置路由访问信息
+在路由访问信息配置中关联到反向代理、负载均衡等等各项功能，所以location模块也是一个非常重要的配置模块
+location / {
+    root    /nginx/www;
+    index    index.php index.html index.htm;
+}
+location /：表示匹配访问根目录
+root：用于指定访问根目录时，访问虚拟主机的web目录
+index：在不指定访问具体资源时，默认展示的资源文件列表
+
+upstream模块主要负责负载均衡的配置，通过默认的轮询调度方式来分发请求到后端服务器
+upstream name {
+    ip_hash;
+    server 192.168.1.100:8000;
+    server 192.168.1.100:8001 down;
+    server 192.168.1.100:8002 max_fails=3;
+    server 192.168.1.100:8003 fail_timeout=20s;
+    server 192.168.1.100:8004 max_fails=3 fail_timeout=20s;
+}
+ip_hash：指定请求调度算法，默认是weight权重轮询调度，可以指定
+-- down：表示该主机暂停服务
+-- max_fails：表示失败最大次数，超过失败最大次数暂停服务
+-- fail_timeout：表示如果请求受理失败，暂停指定的时间之后重新发起请求

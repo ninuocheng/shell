@@ -1,0 +1,42 @@
+awk高级应用
+awk流程控制
+分支结构
+单分支
+if(条件){编辑指令}
+双分支
+if(条件){编辑指令1}else{编辑指令2}
+多分支
+if(条件){编辑指令1}else if(条件){编辑指令2}......else{编辑指令N}
+应用示例
+awk      -F:    '{if($3>500){x++}else{y++}}END{print "UID大于500的用户是"x"个","UID小于或等于500的用户是"y"个"}'      /etc/passwd
+awk数组
+数组的定义及使用
+定义数组
+格式:数组名[下标]=元素值
+调用数组
+格式:数组名[下标]
+遍历数组
+用法:for(变量 in 数组名){print 数组名[变量]}
+用法示例
+为数组name赋值两个元素,值分别为jim、tom
+awk     'BEGIN{name[0]="jim";name[1]="tom";print name[0],name[1]}'
+任务需求
+针对Web访问日志计算访问量排名
+获得结果:客户机的地址、访问次数
+按照访问次数排名
+less /var/log/httpd/access_log
+利用awk提取客户机ip地址,计算访问次数
+以$1做下标,定义数组ip
+最后利用for循环输出数组下标,对应数组元素的值
+awk '{ip[$1]++}END{for(i in ip){print i,ip[i]}}'  /var/log/httpd/access_log
+利用sort对提取结果排序
+-n  按数字升序排列
+-k  针对指定的列进行排序
+-r  反向排序
+awk  '{ip[$1]++}END{for(i in ip){print i,ip[i]}}' /var/log/httpd/access_log  | sort -nr
+awk -F: '{if($3~/\/bin\/bash$/){x++}else{y++}}END{print x,y}'  /etc/passwd     (\转义符号 )
+awk 'BEGIN{a[0]=0;a[1]=11;a[2]=22;for(i in a){print i,a[i]}}'
+df -h | awk '/\/$/{print $4}'
+uptime | awk -F: '{print $NF}'  ($NF是最后一列)(而NF为当前行的列的数量                                                                  
+awk '/Failed password/{print $11}'  /var/log/secure  | awk '{ip[$1]++}END{for(i in ip){print i,ip[i]}}' | awk '$2>3{print $1,$2}'
+awk '/Failed password/{print $11}'  /var/log/secure  | awk '{ip[$1]++}END{for(i in ip){print i,ip[i]}}' | awk '{if($2>3){print $1,$2}}'

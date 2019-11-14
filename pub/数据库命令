@@ -1,0 +1,226 @@
+库管理命令
+show databases;             显示已有的库
+select user();              显示连接用户
+use 库名;                   切换库
+select database();          显示当前所在的库
+create database 库名;       创建库
+drop database 库名;         删除库
+表管理命令
+show tables;                显示已有的表
+desc 库名.表名;             查看表结构
+drop  table 库名.表名;      删除表
+表记录管理命令
+select * from 库名.表名;              查看表记录
+insert into 库名.表名  values(值列表);插入表记录
+update  库.表 set  字段=值;           修改表记录
+delete from 库.表;                    删除表记录 
+修改表结构
+alter table 库.表 执行动作;            
+add  字段名 类型 约束条件 [after 字段 | first];   添加新字段(默认添加在字段末尾)
+modify  字段名 类型 约束条件[after 字段 | first]; 修改字段类型
+change  源字段名 新字段名 类型 约束条件;          修改字段名
+drop    字段名;                                   删除字段
+rename  新表名;                                   修改表名
+创建索引
+create  table 库.表(字段 类型,...,index(字段),index(字段));
+create index 索引名 on 库.表(字段名);
+删除索引
+drop index 索引名 on 库.表;
+查看索引信息
+show index from 表名\G;
+创建主键
+create table 库.表(字段 类型,.....,primary key  auto_increment,字段 类型);
+alter table 库.表 add primary key(字段名);
+删除主键
+alter table 库.表 drop primary key;
+创建复合主键
+alter table 库.表 add primary key(字段名列表);
+创建外键
+create table 库.表(
+字段名列表,
+foreign key (字段名) references 库.表(字段名)
+on update cascade
+on delete cascade
+)engine=innodb;
+删除外键
+alter table 库.表 drop foreign key  外键名;
+示例:
+create table gz(
+gz_idd int unsigned,
+gz  int  unsigned,
+foreign key(gz_id) references yg(yg_id)
+on update cascade on delete cascade
+)engine=innodb;
+
+show  create table  gz\G;
+alter table  gz
+drop foreign key gz_ibfk_1;
+
+alter table gz
+add
+foreign key(gz_id)  references yg(yg_id)
+on update cascade on delete cascade;
+
+show variables like "secure_file_priv";
+load data infile "目录名/文件名"
+into table  库.表
+fields terminated by "分隔符"
+lines terminated by "\n";
+
+select命令  into outfile "目录名/文件名"
+fields terminated by "分隔符"
+lines terminated by "\n";
+grant授权
+grant 权限列表 on 库名 to  用户名@"客户端地址"  identified by   "密码"  with grant option;
+示例:
+grant all on db4.* to yaya@"%" identified by "123qqq...A" with grant option;
+all    所有权限
+usage  无权限
+select,update,insert  个别权限
+select,update(字段1,....,字段N)   指定字段
+库名
+*.*   所有库所有表
+库名.*   一个库
+库名.表名  一张表
+授权时用户名自定义,要有标识性
+存储在mysql库的user表里
+客户端地址
+%    所有主机
+192.168.4.%   网段内的所有主机
+192.168.4.1   一台主机
+localhost    数据库服务器本机
+grant all on *.* mydba@"%"  identified by ""123qqq...A" with grant option;
+grant select on db3.user to admin@"192.168.4.%" identified by "123qqq...A";
+grnat select,update,insert,delete on db3.*  to admin2@"localhost" identified by "123qqq...A";
+select user();  显示登录用户名及客户端地址
+show grants;     用户显示自身权限
+show grants for  用户名@"客户端地址";  管理员查看已有授权用户权限
+set password=password("密码");   授权用户连接后修改连接密码
+set password for 用户名@"客户端地址"=password("密码");  管理员重置授权用户连接密码
+drop  user  用户名@"客户端地址";  删除授权用户(必须有管理员权限)
+mysql库记录授权信息,主要表如下:
+user表   记录已有的授权用户及权限
+db表     记录已有授权用户对数据库的访问权限
+tables_priv  记录已有授权用户对表的访问权限
+columns_priv  记录已有授权用户对字段的访问权限
+撤销权限命令格式
+revoke  权限列表   on  库.表  from  用户名@"客户端地址";
+grant all on *.* to root@"192.168.4.%" identified by "123qqq...A";
+grant all on *.* to dba007@"%" identified by "123qqq...A" with grant option;
+revoke all on *.* from root@"localhost";
+grant all on webdb.* to webuser@"%"  identified by "123qqq...A";
+revoke all on *.* from webuser@"%";
+grant select on *.* to webuser@"%" identified by "123qqq...A";
+恢复root密码
+vim /etc/my.cnf
+[mysqld]
+skip-grant-tables
+:wq
+systemctl restart mysqld
+mysql
+update mysql.user set authentication_string=password("密码")  where user="root" and host="localhost";
+flush privileges;
+quit
+重置root密码
+在shell命令行修改登录密码
+需要验证旧密码
+mysqladmin  -uroot  -p旧密码  password  "新密码"
+数据备份方式
+物理备份
+冷备: cp 、tar
+逻辑备份
+mysqldump   备份命令
+mysql       恢复命令
+备份操作
+cp  -r  /var/lib/mysql   备份目录/mysql.bak
+tar  -zcvf  /root/mysql.tar.gz  /var/lib/mysql/*
+恢复操作
+cp  -r  备份目录/mysql.bak   /var/lib/mysql/
+tar -zxvf  /root/mysql.tar.gz  -C  /var/lib/mysql/
+chown -R  mysql.mysql  /var/lib/mysql
+数据备份策略
+完全备份:备份所有数据
+增量备份:备份上次备份后,所有新产生的数据
+差异备份:备份完全备份后,所有新产生的数据
+完全备份
+mysqldump  -uroot  -p密码  库名  >  目录/xxxx.sql
+完全恢复
+mysql  -uroot  -p密码  [库名]  <  目录/xxxx.sql
+--all-datebases  或   -A   所有库
+数据库名                   单个库
+数据库名  表名             单张表
+-B  数据库1  数据库2       多个库
+示例:
+mysqldump  -uroot -p密码  -A  >  allbak.sql
+mysqldump  -uroot -p密码  db3 > db3.sql
+create  database  db3;
+mysql -uroot  -p密码  db3  <  db3.sql
+mysql  -uroot  -p密码  -A  <  allbak.sql
+什么是binlog日志
+也称做二进制日志
+mysql服务日志文件的一种
+记录除查询以外的所有SQL命令
+可用于数据备份和恢复
+配置mysql主从同步的必要条件
+server_id=数字    指定id值(1-255)
+log_bin[=目录名/文件名]  启用binlog日志
+max_binlog_size=数值m     指定日志文件容量,默认1G
+vim /etc/my.cnf
+[mysqld]
+.. ..
+log_bin
+server_id=100
+systemctl restart mysqld
+手动生成新的日志文件
+systemctl restart mysqld
+mysql>flush logs;
+mysqldump  --flush-logs
+清理日志
+删除指定编号之前的binlog日志文件
+mysql>purge master logs to  "binlog文件名";
+删除所有binlog日志,重建新日志
+mysql>reset master;
+查看日志当前记录格式
+show variables like "binlog_format";
+三种记录方式
+statement  报表模式
+row  行模式
+mixed  混合模式
+修改日志记录格式
+vim  /etc/my.cnf
+[mysqld]
+.. ..
+binlog_format="名称"
+systemctl restart mysqld
+查看日志内容
+mysqlbinlog  [选项]  binlog日志文件名
+--start-datetime="yyyy-mm-dd hh:mm:ss"   起始时间
+--stop-datetime="yyyy-mm-dd hh:mm:ss"    结束时间
+--start-position=数字                    起始偏移量
+--stop-position=数字                     结束偏移量
+示例:
+mysqlbinlog  --start-datetime="2018-06-08 15:30"  /var/lib/mysql/mysql-bin.000001
+恢复数据
+基本思路
+使用mysqlbinlog 提取历史SQL操作
+通过管道交给mysql命令执行
+命令格式
+mysqlbinlog 日志文件 |  mysql -uroot  -p密码
+示例:
+mysqlbinlog mysql-bin.000001 | mysql -uroot  -p123456
+常用的MySQL备份工具
+物理备份缺点
+跨平台性差
+备份时间长、冗余备份、浪费存储空间
+mysqldump备份缺点
+效率较低、备份和还原速度慢、锁表
+备份过程中,数据插入和更新操作被阻塞
+XtraBackup工具
+一款强大的在线热备份工具
+备份过程中不锁库表,适合生产环境
+由专业组织Percona提供(改进MySQL分支)
+主要含两个组件
+xtrabackup:C程序,支持InnoDB/XtraDB
+innobackupex:以Perl脚本封装Xtrabackup
+还支持MyISAM
+
